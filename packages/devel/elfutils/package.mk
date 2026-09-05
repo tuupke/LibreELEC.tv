@@ -9,7 +9,7 @@ PKG_LICENSE="GPL-3.0-or-later AND (GPL-2.0-or-later OR LGPL-3.0-or-later)"
 PKG_SITE="https://sourceware.org/elfutils/"
 PKG_URL="https://sourceware.org/elfutils/ftp/${PKG_VERSION}/${PKG_NAME}-${PKG_VERSION}.tar.bz2"
 PKG_DEPENDS_HOST="autoconf:host automake:host m4:host make:host zlib:host"
-PKG_DEPENDS_TARGET="toolchain zlib elfutils:host libarchive"
+PKG_DEPENDS_TARGET="toolchain zlib elfutils:host libarchive xz"
 PKG_LONGDESC="A collection of utilities to handle ELF objects."
 PKG_TOOLCHAIN="autotools"
 PKG_BUILD_FLAGS="+pic -cfg-libs -cfg-libs:host"
@@ -42,6 +42,11 @@ PKG_CONFIGURE_OPTS_TARGET="utrace_cv_cc_biarch=false \
 
 pre_configure_target() {
   export PKG_CONFIG="${PKG_CONFIG} --static"
+  # elfutils links statically against libarchive.a, which itself needs
+  # liblzma. Add xz's own install dir and libarchive's full static
+  # Libs.private explicitly, so the link doesn't depend on liblzma being
+  # present in the shared sysroot.
+  export LDFLAGS="${LDFLAGS} -L$(get_install_dir xz)/usr/lib $(${PKG_CONFIG} --libs libarchive 2>/dev/null)"
 }
 
 post_makeinstall_target() {
