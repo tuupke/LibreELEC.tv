@@ -1,0 +1,15 @@
+# Attach the pulse8-cec line discipline to the Impulse-CEC USB dongle so it
+# shows up to libcec/Kodi as a standard kernel CEC device (/dev/cecX) instead
+# of relying on libcec's USB VID:PID auto-detection (which only recognises
+# Pulse-Eight's own vendor ID and will never match this dongle's Espressif
+# USB Serial/JTAG VID:PID).
+#
+# ATTRS{serial} matches this specific board's USB iSerial string (its MAC
+# address) rather than VID:PID, because 0x303A:0x1001 is Espressif's generic
+# USB Serial/JTAG ID shared by *any* ESP32 board/console -- matching on it
+# alone would attach this line discipline to unrelated ESP32 dev boards too.
+#
+# Find your own dongle's serial with:
+#   udevadm info -a -n /dev/ttyACM0 | grep '{serial}' | head -1
+# and replace the value below.
+SUBSYSTEM=="tty", KERNEL=="ttyACM*", ATTRS{serial}=="1C:DB:D4:C2:22:48", TAG+="systemd", ENV{SYSTEMD_WANTS}+="inputattach-pulse8@%k.service"

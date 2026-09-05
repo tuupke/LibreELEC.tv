@@ -1,0 +1,10 @@
+[Unit]
+Description=Attach pulse8-cec line discipline to %I
+BindsTo=dev-%i.device
+After=dev-%i.device
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/inputattach --pulse8-cec /dev/%I
+Restart=on-failure
+RestartSec=2
